@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from schemas import Graph, NovelTree, User, UserInDB
 from typing import Annotated
@@ -9,6 +9,11 @@ from dependencies import get_current_user, oauth2_scheme
 from fastapi.security import OAuth2PasswordRequestForm
 from dependencies import fake_hash_password
 import uuid
+import os
+from generate import generate
+
+if not os.path.exists("./static"):
+    os.makedirs("./static")
 
 app = FastAPI()
 
@@ -98,3 +103,15 @@ async def get_authored_trees(current_user: Annotated[User, Depends(get_current_u
     if data.items():
         user_trees = {k: v for k, v in data.items() if v['author'] == current_user.username}
         return user_trees
+
+@app.post("/generate-image/")
+async def generate_image( current_user: Annotated[User, Depends(get_current_user)], prompt: Annotated[str, Form()] ) -> dict:
+    
+    urls = generate(current_user.username)
+
+
+    for url_ in urls:
+        db_entry = {"id": str(uuid.uuid4()), "filename": url_, "location": url_, "author": current_user.username}
+        image_db.append(db_entry)
+
+    return {"urls": urls}

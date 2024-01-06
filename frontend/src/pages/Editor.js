@@ -40,8 +40,8 @@ const Emulator = ({ selectedNode, downStreams, select_node_by_id }) => {
                     width: '25vw',
                     height: '25vw',
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'center'
                 }}
             >
                 {downStreams.map((edge, key) => (
